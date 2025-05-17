@@ -15,6 +15,8 @@ export interface Vehicle {
   color: string;
   status?: string;
   userId?: string;
+  vehicleType?: string;
+  model?: string;
 }
 
 export interface Requests {

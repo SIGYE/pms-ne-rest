@@ -18,6 +18,8 @@ const VehiclePage: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [selectedVehicle, setSelectedVehicle] = useState<Vehicle | null>(null);
+  const [viewMode, setViewMode] = useState<"table" | "grid">("table"); // Added grid view
+
   const user = localStorage.getItem("user");
   const parsedUser = user ? JSON.parse(user) : {};
   const UserRole = parsedUser.role?.toLowerCase();
@@ -25,7 +27,6 @@ const VehiclePage: React.FC = () => {
   const fetchVehicles = async () => {
     setLoading(true);
     setError(null);
-
     try {
       const token = localStorage.getItem("token");
       const response = await axios.get(API_ENDPOINTS.vehicle.all, {
@@ -33,7 +34,6 @@ const VehiclePage: React.FC = () => {
           Authorization: token ? `Bearer ${token}` : "",
         },
       });
-
       const { data } = response;
       setVehicles(data);
     } catch (err) {
@@ -53,7 +53,6 @@ const VehiclePage: React.FC = () => {
     setSelectedVehicle(null);
     setIsDialogOpen(true);
   };
-
 
   const handleDelete = async (vehicle: Vehicle) => {
     try {
@@ -75,22 +74,38 @@ const VehiclePage: React.FC = () => {
 
   return (
     <div className="p-4">
-      <div>
-        <h1 className="text-2xl font-semibold mb-4">Vehicles</h1>
+      <div className="flex justify-between items-center mb-4">
+        <h1 className="text-2xl font-semibold">Vehicles</h1>
 
-        {/* User Create Vehicle */}
-        {UserRole === "user" && (
-          <Button onClick={handleCreateVehicle} className="mb-4 mr-2">
-            Create Vehicle
+        <div className="flex gap-2">
+          {/* Create Vehicle */}
+          {UserRole === "user" && (
+            <Button onClick={handleCreateVehicle}>Create Vehicle</Button>
+          )}
+
+          {/* Toggle buttons */}
+          <Button
+            variant={viewMode === "table" ? "default" : "outline"}
+            onClick={() => setViewMode("table")}
+          >
+            Table View
           </Button>
-        )}
+          <Button
+            variant={viewMode === "grid" ? "default" : "outline"}
+            onClick={() => setViewMode("grid")}
+          >
+            Card View
+          </Button>
+        </div>
       </div>
 
+      {/* Error */}
       {error && <p className="text-red-600 mb-4">{error}</p>}
 
+      {/* Loader or Content */}
       {loading ? (
         <Loader />
-      ) : (
+      ) : viewMode === "table" ? (
         <DataTable<Vehicle>
           data={vehicles}
           columns={getVehicleColumns()}
@@ -99,6 +114,40 @@ const VehiclePage: React.FC = () => {
           role={UserRole}
           tableType="vehicle"
         />
+      ) : (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          {vehicles.map((vehicle) => (
+            <div
+              key={vehicle.id}
+              className="border rounded-lg p-4 bg-white shadow hover:shadow-md transition"
+            >
+              <h2 className="text-lg font-bold mb-2 text-blue-700">
+                {vehicle.vehicleType}
+              </h2>
+              <p className="text-sm mb-1">
+                <strong>Plate:</strong> {vehicle.plateNumber}
+              </p>
+              <p className="text-sm mb-1">
+                <strong>Color:</strong> {vehicle.color || "N/A"}
+              </p>
+              <p className="text-sm mb-1">
+                <strong>Model:</strong> {vehicle.model || "N/A"}
+              </p>
+
+              <div className="mt-4 flex flex-wrap gap-2 justify-end">
+                <Button onClick={() => handleEdit(vehicle)} variant="outline">
+                  Edit
+                </Button>
+                <Button
+                  onClick={() => handleDelete(vehicle)}
+                  variant="destructive"
+                >
+                  Delete
+                </Button>
+              </div>
+            </div>
+          ))}
+        </div>
       )}
 
       <CreateEditVehicle
