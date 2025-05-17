@@ -1,0 +1,119 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+  generator = ""
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  ADMIN // The application admin
+  USER  // This is a compuser
+
+  @@map("roles")
+}
+
+enum VerificationStatus {
+  VERIFIED
+  PENDING
+  UNVERIFIED
+
+  @@map("verification_status")
+}
+
+enum PasswordResetStatus {
+  PENDING
+  IDLE
+
+  @@map("password_reset_status")
+}
+
+enum RequestStatus {
+  PENDING
+  APPROVED
+  REJECTED
+
+  @@map("request_status")
+}
+
+enum VehicleStatus {
+  PENDING
+  APPROVED
+
+  @@map("vehicle_status")
+}
+
+model User {
+  id                   String              @id @default(uuid())
+  names                String
+  email                String              @unique
+  telephone            String?             @unique
+  password             String
+  profilePicture       String              @default("https://firebasestorage.googleapis.com/v0/b/relaxia-services.appspot.com/o/relaxia-profiles%2Fblank-profile-picture-973460_960_720.webp?alt=media") @map("profile_picture")
+  role                 Role                @default(USER)
+  verificationStatus   VerificationStatus  @default(UNVERIFIED) @map("verification_status")
+  verificationCode     String?             @map("verification_code")
+  verificationExpires  DateTime?           @map("verification_expires")
+  passwordResetStatus  PasswordResetStatus @default(IDLE) @map("password_reset_status")
+  passwordResetCode    String?             @map("password_reset_code")
+  passwordResetExpires DateTime?           @map("password_reset_expires")
+  createdAt            DateTime            @default(now()) @map("created_at")
+  updatedAt            DateTime            @updatedAt @map("updated_at")
+
+  vehicleRequests      ParkingRequest[]
+  vehicles             Vehicle[]
+
+  @@map("users")
+}
+
+model Vehicle {
+  id          String        @id @default(uuid())
+  plateNumber String        @unique @map("plate_number")
+  color       String
+  status      VehicleStatus @default(PENDING)
+  userId      String        @map("user_id")
+  user        User          @relation(fields: [userId], references: [id])
+  createdAt   DateTime      @default(now()) @map("created_at")
+  updatedAt   DateTime      @updatedAt @map("updated_at")
+  vehicleRequests ParkingRequest[]
+
+  @@map("vehicles")
+}
+
+model ParkingSlot {
+  id          String   @id @default(uuid())
+  slotNumber  Int      @unique @map("slot_number")
+  isAvailable Boolean  @default(true) @map("is_available")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  parkingRequests ParkingRequest[]
+
+  @@map("parking_slots")
+}
+
+model ParkingRequest {
+  id             String        @id @default(uuid())
+  userId         String        @map("user_id")
+  vehicleId      String        @map("vehicle_id")
+  parkingSlotId  String?       @map("parking_slot_id")
+  checkIn        DateTime      @default(now())@map("check_in")
+  checkOut       DateTime      @map("check_out")
+  status         RequestStatus @default(PENDING)
+  requestedAt    DateTime      @default(now()) @map("requested_at")
+  approvedAt     DateTime?     @map("approved_at")
+  user           User          @relation(fields: [userId], references: [id])
+  vehicle        Vehicle       @relation(fields: [vehicleId], references: [id])
+  parkingSlot    ParkingSlot?  @relation(fields: [parkingSlotId], references: [id])
+
+  @@map("parking_requests")
+}
+
