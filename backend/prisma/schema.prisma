@@ -70,6 +70,7 @@ model User {
 
   vehicleRequests      ParkingRequest[]
   vehicles             Vehicle[]
+  payments           Payment[]
 
   @@map("users")
 }
@@ -84,6 +85,7 @@ model Vehicle {
   createdAt   DateTime      @default(now()) @map("created_at")
   updatedAt   DateTime      @updatedAt @map("updated_at")
   vehicleRequests ParkingRequest[]
+  payments           Payment[]
 
   @@map("vehicles")
 }
@@ -96,6 +98,7 @@ model ParkingSlot {
   updatedAt   DateTime @updatedAt @map("updated_at")
 
   parkingRequests ParkingRequest[]
+  payments            Payment[]
 
   @@map("parking_slots")
 }
@@ -117,3 +120,20 @@ model ParkingRequest {
   @@map("parking_requests")
 }
 
+model Payment {
+  id            String        @id @default(uuid())
+  userId        String        @map("user_id")
+  vehicleId     String        @map("vehicle_id")
+  slotId        String        @map("slot_id")
+  checkInTime   DateTime      @map("check_in_time")
+  checkOutTime  DateTime      @map("check_out_time")
+  durationHours Int           @map("duration_hours")
+  amountPaid    Float         @map("amount_paid")
+  createdAt     DateTime      @default(now()) @map("created_at")
+
+  user          User          @relation(fields: [userId], references: [id])
+  vehicle       Vehicle       @relation(fields: [vehicleId], references: [id])
+  slot          ParkingSlot   @relation(fields: [slotId], references: [id])
+
+  @@map("payments")
+}
