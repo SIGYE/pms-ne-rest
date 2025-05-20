@@ -11,14 +11,14 @@ import { checkAdmin } from "../middlewares/auth.middleware";
 import { validationMiddleware } from "../middlewares/validator.middleware";
 import { CreateParkingSlotDto, UpdateParkingSlotDto } from "../dtos/parkingSlot.dto";
 
-const router = Router();
-router.use(checkAdmin);
+const parkingSlotRouter = Router();
+parkingSlotRouter.use(checkAdmin);
 
-router.get("/", getAllParkingSlots);
-router.get("/available", getAvailableParkingSlots); // Get all available parking slots
-router.get("/:id", getParkingSlotById);
-router.post("/", validationMiddleware(CreateParkingSlotDto), createParkingSlot);
-router.put("/:id", validationMiddleware(UpdateParkingSlotDto, true), updateParkingSlot);
-router.delete("/:id", deleteParkingSlot);
+parkingSlotRouter.get("/", getAllParkingSlots);
+parkingSlotRouter.get("/available", getAvailableParkingSlots); // Get all available parking slots
+parkingSlotRouter.get("/:id", getParkingSlotById);
+parkingSlotRouter.post("/create", validationMiddleware(CreateParkingSlotDto), createParkingSlot);
+parkingSlotRouter.put("/update", validationMiddleware(UpdateParkingSlotDto, true), updateParkingSlot);
+parkingSlotRouter.delete("/delete", deleteParkingSlot);
 
-export default router;
+export default parkingSlotRouter;

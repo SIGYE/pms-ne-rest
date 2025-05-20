@@ -6,7 +6,6 @@
 
 generator client {
   provider = "prisma-client-js"
-  generator = ""
 }
 
 datasource db {
@@ -15,8 +14,8 @@ datasource db {
 }
 
 enum Role {
-  ADMIN // The application admin
-  USER  // This is a compuser
+  ADMIN
+  USER
 
   @@map("roles")
 }
@@ -34,14 +33,6 @@ enum PasswordResetStatus {
   IDLE
 
   @@map("password_reset_status")
-}
-
-enum RequestStatus {
-  PENDING
-  APPROVED
-  REJECTED
-
-  @@map("request_status")
 }
 
 enum VehicleStatus {
@@ -68,72 +59,89 @@ model User {
   createdAt            DateTime            @default(now()) @map("created_at")
   updatedAt            DateTime            @updatedAt @map("updated_at")
 
-  vehicleRequests      ParkingRequest[]
   vehicles             Vehicle[]
-  payments           Payment[]
+  payments             Payment[]
 
   @@map("users")
 }
 
 model Vehicle {
-  id          String        @id @default(uuid())
-  plateNumber String        @unique @map("plate_number")
-  color       String
-  status      VehicleStatus @default(PENDING)
-  userId      String        @map("user_id")
-  user        User          @relation(fields: [userId], references: [id])
-  createdAt   DateTime      @default(now()) @map("created_at")
-  updatedAt   DateTime      @updatedAt @map("updated_at")
-  vehicleRequests ParkingRequest[]
-  payments           Payment[]
+  id             String        @id @default(uuid())
+  plateNumber    String        @unique @map("plate_number")
+  color          String
+  status         VehicleStatus @default(PENDING)
+  userId         String        @map("user_id")
+  assignedSlotId String?       @map("assigned_slot_id")
+  createdAt      DateTime      @default(now()) @map("created_at")
+  updatedAt      DateTime      @updatedAt @map("updated_at")
+
+  user           User          @relation(fields: [userId], references: [id])
+  assignedSlot   ParkingSlot?  @relation("VehicleAssignedSlot", fields: [assignedSlotId], references: [id])
+
+  payments       Payment[]
+  entries        Entry[]
 
   @@map("vehicles")
 }
 
-model ParkingSlot {
-  id          String   @id @default(uuid())
-  slotNumber  Int      @unique @map("slot_number")
-  isAvailable Boolean  @default(true) @map("is_available")
-  createdAt   DateTime @default(now()) @map("created_at")
-  updatedAt   DateTime @updatedAt @map("updated_at")
+model Parking {
+  id          String        @id @default(uuid())
+  name        String
+  location    String
+  code        String        @unique
+  feePerHour  Float         @map("fee_per_hour")
+  createdAt   DateTime      @default(now()) @map("created_at")
+  updatedAt   DateTime      @updatedAt @map("updated_at")
 
-  parkingRequests ParkingRequest[]
-  payments            Payment[]
+  slots       ParkingSlot[]
 
-  @@map("parking_slots")
+  @@map("parking")
 }
 
-model ParkingRequest {
-  id             String        @id @default(uuid())
-  userId         String        @map("user_id")
-  vehicleId      String        @map("vehicle_id")
-  parkingSlotId  String?       @map("parking_slot_id")
-  checkIn        DateTime      @default(now())@map("check_in")
-  checkOut       DateTime      @map("check_out")
-  status         RequestStatus @default(PENDING)
-  requestedAt    DateTime      @default(now()) @map("requested_at")
-  approvedAt     DateTime?     @map("approved_at")
-  user           User          @relation(fields: [userId], references: [id])
-  vehicle        Vehicle       @relation(fields: [vehicleId], references: [id])
-  parkingSlot    ParkingSlot?  @relation(fields: [parkingSlotId], references: [id])
+model ParkingSlot {
+  id           String       @id @default(uuid())
+  slotNumber   Int          @unique @map("slot_number")
+  isAvailable  Boolean      @default(true) @map("is_available")
+  parkingId    String?       @map("parking_id")
+  createdAt    DateTime     @default(now()) @map("created_at")
+  updatedAt    DateTime     @updatedAt @map("updated_at")
 
-  @@map("parking_requests")
+  parking      Parking?      @relation(fields: [parkingId], references: [id])
+  assignedTo   Vehicle[]    @relation("VehicleAssignedSlot")
+  payments     Payment[]
+  entries      Entry[]
+
+  @@map("parkingSlot")
 }
 
 model Payment {
-  id            String        @id @default(uuid())
-  userId        String        @map("user_id")
-  vehicleId     String        @map("vehicle_id")
-  slotId        String        @map("slot_id")
-  checkInTime   DateTime      @map("check_in_time")
-  checkOutTime  DateTime      @map("check_out_time")
-  durationHours Int           @map("duration_hours")
-  amountPaid    Float         @map("amount_paid")
-  createdAt     DateTime      @default(now()) @map("created_at")
+  id            String       @id @default(uuid())
+  userId        String       @map("user_id")
+  vehicleId     String       @map("vehicle_id")
+  slotId        String       @map("slot_id")
+  checkInTime   DateTime     @map("check_in_time")
+  checkOutTime  DateTime     @map("check_out_time")
+  durationHours Int          @map("duration_hours")
+  amountPaid    Float        @map("amount_paid")
+  createdAt     DateTime     @default(now()) @map("created_at")
 
-  user          User          @relation(fields: [userId], references: [id])
-  vehicle       Vehicle       @relation(fields: [vehicleId], references: [id])
-  slot          ParkingSlot   @relation(fields: [slotId], references: [id])
+  user          User         @relation(fields: [userId], references: [id])
+  vehicle       Vehicle      @relation(fields: [vehicleId], references: [id])
+  slot          ParkingSlot  @relation(fields: [slotId], references: [id])
 
   @@map("payments")
+}
+
+model Entry {
+  id            String       @id @default(uuid())
+  vehicleId     String       @map("vehicle_id")
+  slotId        String       @map("slot_id")
+  entryTime     DateTime     @default(now()) @map("entry_time")
+  exitTime      DateTime?    @map("exit_time")
+  chargedAmount Float        @default(0) @map("charged_amount")
+
+  vehicle       Vehicle      @relation(fields: [vehicleId], references: [id])
+  slot          ParkingSlot  @relation(fields: [slotId], references: [id])
+
+  @@map("entry")
 }

@@ -1,3 +1,5 @@
+import "reflect-metadata"
+
 import bodyParser from 'body-parser';
 import cors from 'cors';
 import { config } from 'dotenv';
@@ -9,6 +11,7 @@ import ServerResponse from './utils/ServerResponse';
 import router from './routes';
 import morganLogger from './loggers/logger';
 import { startParkingSlotAvailabilityJob } from './utils/parkingSlotAvailabilityJob';
+
 
 config();
 

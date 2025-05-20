@@ -5,7 +5,8 @@ import jwt from "jsonwebtoken";
 import prisma from "../../prisma/prisma-client";
 import { AuthRequest } from "../types";
 import ServerResponse from "../utils/ServerResponse";
-import { User } from "@prisma/client";
+//import { User } from "@prisma/client"// Removed unused import for User from "@prisma/client"
+
 
 config();
 
@@ -176,10 +177,17 @@ const updatePassword: any = async (req: AuthRequest, res: Response) => {
   try {
     const { oldPassword, newPassword } = req.body;
     const user = await prisma.user.findUnique({ where: { id: req.user.id } });
-    if (!user) ServerResponse.error(res, "User not found", 404);
-    const isPasswordValid = compareSync(oldPassword, (user as User).password);
-    if (!isPasswordValid)
+
+    // TypeScript fix: Add return or throw here
+    if (!user) {
+      return ServerResponse.error(res, "User not found", 404);
+    }
+
+    const isPasswordValid = compareSync(oldPassword, user.password);
+    if (!isPasswordValid) {
       return ServerResponse.error(res, "Invalid old password", 400);
+    }
+
     const hashedPassword = hashSync(newPassword, 10);
     const updatedUser = await prisma.user.update({
       where: { id: req.user.id },
@@ -187,6 +195,7 @@ const updatePassword: any = async (req: AuthRequest, res: Response) => {
         password: hashedPassword,
       },
     });
+
     return ServerResponse.success(res, "Password updated successfully", {
       user: updatedUser,
     });

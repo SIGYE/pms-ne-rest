@@ -2,8 +2,9 @@ import { Router } from "express";
 import authRouter from "./auth.route";
 import userRouter from "./user.route";
 import vehicleRouter from "./vehicle.route";
-import parkingRouter from "./parkingRequest.route";
+import parkingSessionRouter from "./parking.route";
 import parkingSlotRouter from "./parkingSlot.route";
+import entryRouter from "./entry.route";
 
 const router = Router();
 
@@ -31,7 +32,7 @@ router.use("/vehicles", vehicleRouter
         }] 
     */
 );
-router.use("/parkingRequests", parkingRouter
+router.use("/parking", parkingSessionRouter
     /*
         #swagger.tags = ['Parking Requests']
         #swagger.security = [{
@@ -45,6 +46,15 @@ router.use("/parkingSlots", parkingSlotRouter
         #swagger.security = [{
                 "bearerAuth": []
         }] 
+    */
+);
+
+router.use("/entry", entryRouter
+    /*
+        #swagger.tags = ['Entries']
+        #swagger.security = [{
+            "bearerAuth": []
+        }]
     */
 );
 

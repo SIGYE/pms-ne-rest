@@ -79,6 +79,7 @@ const SlotsPage: React.FC = () => {
     fetchSlots();
   }, []);
 
+
   return (
     <div className="p-4">
       <div className="flex justify-between items-center mb-4">

@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import prisma from "../../prisma/prisma-client";
 import { PrismaClient } from '@prisma/client';
 import ServerResponse from "../utils/ServerResponse";
+import { connect } from "http2";
 
 
 //get all parking slots
@@ -52,7 +53,7 @@ export const getParkingSlotById = async (req: Request, res: Response) => {
 
 export const createParkingSlot = async (req: Request, res: Response) => {
   try {
-    const { slotNumber, isAvailable } = req.body;
+    const { slotNumber, isAvailable, parkingId } = req.body;
     const existingSlot = await prisma.parkingSlot.findUnique({
       where: { slotNumber },
     });
@@ -61,11 +62,23 @@ export const createParkingSlot = async (req: Request, res: Response) => {
     if (existingSlot) {
       return ServerResponse.error(res, "Slot number already exists");
     }
+
+    //check if provided parking id exists
+    const parking = await prisma.parking.findUnique({
+      where: { id: parkingId},
+    });
+    if (!parking){
+      return ServerResponse.error(res, "Associated parking not found");
+    }
+
     //create new parking slot
     const newParkingSlot = await prisma.parkingSlot.create({
       data: {
         slotNumber,
         isAvailable: isAvailable !== undefined ? isAvailable : true,
+        parking: {
+          connect: {id: parkingId},
+        }
       },
     });
     return ServerResponse.created(res, "Parking slot created successfully", newParkingSlot);
@@ -125,44 +138,6 @@ export const deleteParkingSlot = async (req: Request, res: Response) => {
   } catch (error) {
     console.error("Error deleting parking slot:", error);
     return ServerResponse.error(res, "Failed to delete parking slot");
-  }
-};
-
-// Check out parking slot
-export const checkoutSlot = async (req: Request, res: Response) => {
-  try {
-    const { slotId, vehicleId, userId, checkInTime, checkOutTime } = req.body;
-
-    // Calculate duration in hours
-    const start = new Date(checkInTime);
-    const end = new Date(checkOutTime);
-    const durationHours = Math.ceil((end.getTime() - start.getTime()) / (1000 * 60 * 60));
-    const ratePerHour = 100;
-    const amountPaid = durationHours * ratePerHour;
-
-    // Save payment
-    const payment = await prisma.payment.create({
-      data: {
-        slotId,
-        vehicleId,
-        userId,
-        checkInTime: start,
-        checkOutTime: end,
-        durationHours,
-        amountPaid,
-      },
-    });
-
-    // Optionally mark slot as available again
-    await prisma.parkingSlot.update({
-      where: { id: slotId },
-      data: { isAvailable: true },
-    });
-
-    return ServerResponse.success(res, "Payment successful", payment);
-  } catch (error) {
-    console.error("Error checking out:", error);
-    return ServerResponse.error(res, "Checkout failed");
   }
 };
 

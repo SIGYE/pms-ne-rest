@@ -66,10 +66,11 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onRegisterSuccess }) => {
         return;
       }
 
-      // const result = response.data.data;
-      // if (result.token) {
-      //   localStorage.setItem("token", result.token);
-      // }
+      const result = response.data.data;
+      if (result.token) {
+    
+        localStorage.setItem("token", result.token);
+      }
 
       toast.success("Registration successful");
       onRegisterSuccess(data.email);

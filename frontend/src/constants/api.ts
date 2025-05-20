@@ -21,16 +21,13 @@ export const API_ENDPOINTS = {
     delete: (id: string) => `${API_BASE_URL}/vehicles/${id}`,
     getById: (id: string) => `${API_BASE_URL}/vehicles/${id}`,
   },
-  parkingRequests:{
-    mine: `${API_BASE_URL}/parkingRequests/myRequests`,
-    all: `${API_BASE_URL}/parkingRequests/allRequests`,
-    create: `${API_BASE_URL}/parkingRequests`,
-    update: (id: string) => `${API_BASE_URL}/parkingRequests/${id}`,
-    delete: (id: string) => `${API_BASE_URL}/parkingRequests/${id}`,
-    getById: (id: string) => `${API_BASE_URL}/parkingRequests/${id}`,
-    approve: (id: string) => `${API_BASE_URL}/parkingRequests/approve/${id}`,
-    reject: (id: string) => `${API_BASE_URL}/parkingRequests/reject/${id}`,
-  },
+parking: {
+  create: `${API_BASE_URL}/parkingSession/create`,
+  update: `${API_BASE_URL}/parkingSession/update`,
+  delete: `${API_BASE_URL}/parkingSession/delete`,
+  all: `${API_BASE_URL}/parkingSession`,
+  getById: (id: string) => `${API_BASE_URL}/parkingSession/${id}`,
+},
   parkingSlots:{
     all: `${API_BASE_URL}/parkingSlots`,
     create: `${API_BASE_URL}/parkingSlots`,
@@ -38,7 +35,10 @@ export const API_ENDPOINTS = {
     delete: (id: string) => `${API_BASE_URL}/parkingSlots/${id}`,
     getById: (id: string) => `${API_BASE_URL}/parkingSlots/${id}`,
     available:`${API_BASE_URL}/parkingSlots/available`,
-  }
-};
+  },
 
+    entry: {
+    create: `${API_BASE_URL}/entry/create`,
+  },
+};
 export default API_ENDPOINTS;

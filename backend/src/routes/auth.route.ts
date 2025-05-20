@@ -28,7 +28,6 @@ authRouter.put(
 );
 authRouter.put(
   "/initiate-email-verification",
-  [checkLoggedIn],
   [validationMiddleware(InitiateVerifyEmailDTO)],
   authController.initiateEmailVerification
 );

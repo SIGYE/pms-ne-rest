@@ -3,7 +3,7 @@ import { NavLink } from "react-router-dom";
 import logo from "../../assets/logo.jpeg";
 import { Menu, X } from "lucide-react";
 import DeleteConfirmModal from "../modals/common/DeleteConfirmModal";
-import { House, CarFront, CircleParking, FileText, UsersRound, LogOut, Wallet } from "lucide-react";
+import { House, CarFront, CircleParking, UsersRound, LogOut } from "lucide-react";
 
 const Sidebar: React.FC = () => {
   const [isLogoutConfirmOpen, setIsLogoutConfirmOpen] = useState(false);
@@ -16,9 +16,8 @@ const Sidebar: React.FC = () => {
     { name: "Overview", path: "/dashboard/overview", roles: ["ADMIN"], icon: House },
     { name: "Vehicles", path: "/dashboard/vehicles", roles: ["USER"], icon: CarFront },
     { name: "Slots", path: "/dashboard/slots", roles: ["ADMIN"], icon: CircleParking },
-    { name: "Requests", path: "/dashboard/requests", roles: ["ADMIN", "USER"], icon: FileText },
     { name: "Users", path: "/dashboard/users", roles: ["ADMIN"], icon: UsersRound },
-    { name: "Payments", path: "/dashboard/payments", roles: ["ADMIN"], icon: Wallet },
+
   ];
 
   const confirmLogout = () => {
