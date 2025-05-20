@@ -13,6 +13,7 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+
 enum Role {
   ADMIN
   USER
@@ -102,11 +103,11 @@ model ParkingSlot {
   id           String       @id @default(uuid())
   slotNumber   Int          @unique @map("slot_number")
   isAvailable  Boolean      @default(true) @map("is_available")
-  parkingId    String?       @map("parking_id")
+  parkingId    String      @map("parking_id")
   createdAt    DateTime     @default(now()) @map("created_at")
   updatedAt    DateTime     @updatedAt @map("updated_at")
 
-  parking      Parking?      @relation(fields: [parkingId], references: [id])
+  parking      Parking     @relation(fields: [parkingId], references: [id])
   assignedTo   Vehicle[]    @relation("VehicleAssignedSlot")
   payments     Payment[]
   entries      Entry[]

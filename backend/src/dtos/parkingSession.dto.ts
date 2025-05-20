@@ -30,11 +30,6 @@ import {
     @IsNumber()
     @Min(0)
     feePerHour: number;
-  
-    @ValidateNested({ each: true })
-    @ArrayMinSize(1, { message: "At least one parking slot is required" })
-    @Type(() => CreateParkingSlotDto)
-    slots: CreateParkingSlotDto[];
   }
   
   export class UpdateParkingDTO {

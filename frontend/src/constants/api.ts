@@ -16,9 +16,9 @@ export const API_ENDPOINTS = {
   },
   vehicle:{
     all: `${API_BASE_URL}/vehicles/getMyVehicles`,
-    create: `${API_BASE_URL}/vehicles`,
-    update: (id: string) => `${API_BASE_URL}/vehicles/${id}`,
-    delete: (id: string) => `${API_BASE_URL}/vehicles/${id}`,
+    create: `${API_BASE_URL}/vehicles/create`,
+    update: (id: string) => `${API_BASE_URL}/vehicles/update`,
+    delete: (id: string) => `${API_BASE_URL}/vehicles/delete`,
     getById: (id: string) => `${API_BASE_URL}/vehicles/${id}`,
   },
 parking: {

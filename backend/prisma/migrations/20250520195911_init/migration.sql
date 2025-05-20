@@ -63,7 +63,7 @@ CREATE TABLE "parkingSlot" (
     "id" TEXT NOT NULL,
     "slot_number" INTEGER NOT NULL,
     "is_available" BOOLEAN NOT NULL DEFAULT true,
-    "parking_id" TEXT NOT NULL,
+    "parking_id" TEXT,
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMP(3) NOT NULL,
 
@@ -119,7 +119,7 @@ ALTER TABLE "vehicles" ADD CONSTRAINT "vehicles_user_id_fkey" FOREIGN KEY ("user
 ALTER TABLE "vehicles" ADD CONSTRAINT "vehicles_assigned_slot_id_fkey" FOREIGN KEY ("assigned_slot_id") REFERENCES "parkingSlot"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "parkingSlot" ADD CONSTRAINT "parkingSlot_parking_id_fkey" FOREIGN KEY ("parking_id") REFERENCES "parking"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "parkingSlot" ADD CONSTRAINT "parkingSlot_parking_id_fkey" FOREIGN KEY ("parking_id") REFERENCES "parking"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "payments" ADD CONSTRAINT "payments_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "users"("id") ON DELETE RESTRICT ON UPDATE CASCADE;

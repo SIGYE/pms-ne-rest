@@ -15,7 +15,6 @@ import ResetPasswordPage from "./pages/auth/resetPassword";
 import NotFoundPage from "./pages/404";
 import UnauthorizedPage from "./pages/404/unauthorized";
 import UserPage from "./pages/users";
-import RequestPage from "./pages/requests";
 import SlotsPage from "./pages/slots";
 import VehiclePage from "./pages/vehicles";
 
@@ -101,14 +100,7 @@ const App: React.FC = () => {
               </PrivateRoute>
             }
           />
-          <Route
-            path="requests"
-            element={
-              <PrivateRoute allowedRoles={["ADMIN","USER"]}>
-                <RequestPage />
-              </PrivateRoute>
-            }
-          />
+    
           <Route
             path="users"
             element={

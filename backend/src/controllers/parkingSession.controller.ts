@@ -19,12 +19,6 @@ export const createParking = async (req: Request, res: Response) => {
         location: dto.location,
         code: dto.code,
         feePerHour: dto.feePerHour,
-        slots: {
-          create: dto.slots.map((slot) => ({
-            slotNumber: slot.slotNumber,
-            isAvailable: slot.isAvailable ?? true, // default to true
-          })),
-        },
       },
       include: { slots: true },
     });

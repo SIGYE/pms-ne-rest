@@ -4,12 +4,12 @@ import { checkAdmin, checkLoggedIn } from "../middlewares/auth.middleware";
 import { validationMiddleware } from "../middlewares/validator.middleware";
 import { CreateVehicleDTO, UpdateVehicleDTO } from "../dtos/vehicle.dto";
 
-const router = Router();
+const vehicleRouter = Router();
 
-router.post("/", checkLoggedIn, validationMiddleware(CreateVehicleDTO), vehicleController.createVehicle);
-router.get("/getMyVehicles", checkLoggedIn, vehicleController.getUserVehicles);
-router.get("/:id", checkLoggedIn, vehicleController.getVehicleById);
-router.put("/:id", checkLoggedIn, validationMiddleware(UpdateVehicleDTO, true), vehicleController.updateVehicle);
-router.delete("/:id", checkLoggedIn, vehicleController.deleteVehicle);
+vehicleRouter.post("/create", checkLoggedIn, validationMiddleware(CreateVehicleDTO), vehicleController.createVehicle);
+vehicleRouter.get("/getMyVehicles", checkLoggedIn, vehicleController.getUserVehicles);
+vehicleRouter.get("/:id", checkLoggedIn, vehicleController.getVehicleById);
+vehicleRouter.put("/update", checkLoggedIn, validationMiddleware(UpdateVehicleDTO, true), vehicleController.updateVehicle);
+vehicleRouter.delete("/delete", checkLoggedIn, vehicleController.deleteVehicle);
 
-export default router;
+export default vehicleRouter;

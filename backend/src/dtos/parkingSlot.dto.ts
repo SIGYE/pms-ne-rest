@@ -1,4 +1,4 @@
-import { IsInt, IsBoolean, IsOptional, Min } from "class-validator";
+import { IsInt, IsBoolean, IsOptional, Min, IsUUID } from "class-validator";
 
 export class CreateParkingSlotDto {
   @IsInt()
@@ -8,6 +8,9 @@ export class CreateParkingSlotDto {
   @IsBoolean()
   @IsOptional()
   isAvailable?: boolean;
+
+   @IsUUID("4", { message: "Invalid parkingId format" })
+  parkingId: string;
 }
 
 export class UpdateParkingSlotDto {
