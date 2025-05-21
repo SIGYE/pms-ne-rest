@@ -1,5 +1,6 @@
 import { ColumnDef } from "@tanstack/react-table";
-import { clsx } from "clsx";
+import { Parking } from "../../types/parking";
+
 
 export interface Users {
   id?: string;
@@ -25,14 +26,14 @@ export interface Slots {
   isAvailable: boolean;
 }
 
-export interface Parking{
-  id?: string;
-  name: string;
-  location: string;
-  code: string;
-  feePerHour: number;
-  slots?: Slots[];
-}
+// export interface Parking{
+//   id?: string;
+//   name: string;
+//   location: string;
+//   code: string;
+//   feePerHour: number;
+//   slots?: Slots[];
+// }
 
 //user columns 
 export const userColumns = (): ColumnDef<Users>[] => [
@@ -159,7 +160,7 @@ export const slotColumns = (): ColumnDef<Slots>[] => [
 
 // PARKING COLUMNS
 export const parkingColumns = (): ColumnDef<Parking>[] => [
-    {
+  {
     accessorKey: "name",
     header: "Name",
   },
@@ -174,6 +175,16 @@ export const parkingColumns = (): ColumnDef<Parking>[] => [
   {
     accessorKey: "feePerHour",
     header: "Fee Per Hour",
-    cell: (info) => `Frw ${info.getValue()}`, // customize display
+    cell: (info) => (
+      <span className="text-blue-600 font-medium">Frw {String(info.getValue())}</span>
+    ),
+  },
+  {
+    accessorKey: "slots",
+    header: "Total Slots",
+    cell: (info) => {
+      const slots = info.getValue() as Slots[] | undefined;
+      return <span className="font-semibold">{slots?.length ?? 0}</span>;
+    },
   },
 ];

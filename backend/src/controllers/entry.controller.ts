@@ -1,83 +1,143 @@
-
+import { PrismaClient } from '@prisma/client';
 import { Request, Response } from 'express';
-import { plainToInstance } from 'class-transformer';
-import { validate } from 'class-validator';
-import prisma from '../../prisma/prisma-client';
-import { CreateEntryDTO } from '../dtos/entry.dto';
 
-export const createEntry = async (req: Request, res: Response) => {
-  const dto = plainToInstance(CreateEntryDTO, req.body);
-  const errors = await validate(dto);
+const prisma = new PrismaClient();
 
-  if (errors.length > 0) {
-    return res.status(400).json({ errors });
-  }
-
+export const createCarEntry = async (req: Request, res: Response) => {
   try {
-    // 1. Find vehicle by plate number
-    const vehicle = await prisma.vehicle.findUnique({
-      where: { plateNumber: dto.plateNumber },
+    const {
+      plateNumber,
+      parkingCode,
+      userId,
+      parkingSlotId,
+      vehicleId,
+    } = req.body;
+
+    // Check if slot is available
+    const slot = await prisma.parkingSlot.findUnique({
+      where: { id: parkingSlotId },
+      include: { parking: true }, // include parking to get parkingId for ticket
     });
 
-    if (!vehicle) {
-      return res.status(404).json({ message: 'Vehicle with this plate number not found' });
+    if (!slot || !slot.isAvailable) {
+      return res.status(400).json({ message: 'Slot not available or does not exist' });
     }
 
-    // 2. Find parking by code and get an available slot
-    const parking = await prisma.parking.findUnique({
-      where: { code: dto.parkingCode },
-      include: {
-        slots: {
-          where: { isAvailable: true },
-          take: 1,
-        },
-      },
-    });
-
-    if (!parking || parking.slots.length === 0) {
-      return res.status(404).json({ message: 'No available slots for this parking code' });
-    }
-
-    const slot = parking.slots[0];
-
-    // 3. Calculate charged amount if both entry and exit times are provided
-    let chargedAmount = 0;
-    if (dto.entryTime && dto.exitTime) {
-      const entry = new Date(dto.entryTime).getTime();
-      const exit = new Date(dto.exitTime).getTime();
-
-      if (exit < entry) {
-        return res.status(400).json({ message: 'Exit time must be after entry time' });
-      }
-
-      const hours = Math.ceil((exit - entry) / (1000 * 60 * 60)); // convert ms to hours
-      chargedAmount = hours * parking.feePerHour;
-    }
-
-    // 4. Create entry
-    const entry = await prisma.entry.create({
-      data: {
-        vehicleId: vehicle.id,
-        slotId: slot.id,
-        entryTime: dto.entryTime,
-        exitTime: dto.exitTime ?? null,
-        chargedAmount,
-      },
-      include: {
-        vehicle: true,
-        slot: true,
-      },
-    });
-
-    // 5. Mark the slot as unavailable
+    // Mark slot as unavailable
     await prisma.parkingSlot.update({
-      where: { id: slot.id },
+      where: { id: parkingSlotId },
       data: { isAvailable: false },
     });
 
-    return res.status(201).json({ message: 'Entry registered successfully', entry });
+    // Create car entry
+    const newEntry = await prisma.carEntry.create({
+      data: {
+        plateNumber,
+        parkingCode,
+        userId,
+        parkingSlotId,
+        vehicleId,
+      },
+    });
+
+    // Create ticket associated with this car entry
+    const amount = slot.parking.feePerHour; 
+    const ticket = await prisma.ticket.create({
+      data: {
+        userId,
+        parkingId: slot.parking.id,  // parkingId from included parking relation
+        amount,
+        carEntryId: newEntry.id,
+      },
+    });
+
+    res.status(201).json({ newEntry, ticket });  // return both car entry and ticket
   } catch (error) {
-    console.error('Error registering entry:', error);
-    return res.status(500).json({ message: 'Failed to register entry', error });
+    console.error(error);
+    res.status(500).json({ message: 'Failed to create car entry and ticket' });
+  }
+};
+
+
+
+export const getAllCarEntries = async (req: Request, res: Response) => {
+  try {
+    const entries = await prisma.carEntry.findMany({
+      include: {
+        user: true,
+        vehicle: true,
+        parkingSlot: true,
+        tickets: true,
+        bills: true,
+      },
+    });
+
+    res.status(200).json(entries);
+  } catch (error) {
+    res.status(500).json({ message: 'Failed to fetch car entries' });
+  }
+};
+
+export const getCarEntryById = async (req: Request, res: Response) => {
+  try {
+    const id = parseInt(req.params.id);
+
+    const entry = await prisma.carEntry.findUnique({
+      where: { id },
+      include: {
+        user: true,
+        vehicle: true,
+        parkingSlot: true,
+        tickets: true,
+        bills: true,
+      },
+    });
+
+    if (!entry) {
+      return res.status(404).json({ message: 'Car entry not found' });
+    }
+
+    res.status(200).json(entry);
+  } catch (error) {
+    res.status(500).json({ message: 'Failed to fetch car entry' });
+  }
+};
+
+export const updateCarExit = async (req: Request, res: Response) => {
+  try {
+    const id = parseInt(req.params.id);
+    const { exitDateTime, chargedAmount } = req.body;
+
+    const updatedEntry = await prisma.carEntry.update({
+      where: { id },
+      data: {
+        exitDateTime: new Date(exitDateTime),
+        chargedAmount,
+      },
+    });
+
+    // Free up the slot
+    await prisma.parkingSlot.update({
+      where: { id: updatedEntry.parkingSlotId },
+      data: { isAvailable: true },
+    });
+
+    res.status(200).json(updatedEntry);
+  } catch (error) {
+    res.status(500).json({ message: 'Failed to update car entry with exit info' });
+  }
+};
+
+export const deleteCarEntry = async (req: Request, res: Response) => {
+  try {
+    const id = parseInt(req.params.id);
+
+    const deleted = await prisma.carEntry.delete({
+      where: { id },
+    });
+
+    res.status(200).json(deleted);
+  } catch (error) {
+    res.status(500).json({ message: 'Failed to delete car entry' });
   }
 };

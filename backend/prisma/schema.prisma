@@ -61,7 +61,10 @@ model User {
   updatedAt            DateTime            @updatedAt @map("updated_at")
 
   vehicles             Vehicle[]
-  payments             Payment[]
+  carEntries CarEntry[]
+    carExits   CarExit[]
+    tickets    Ticket[]
+    bills      Bill[]
 
   @@map("users")
 }
@@ -79,8 +82,7 @@ model Vehicle {
   user           User          @relation(fields: [userId], references: [id])
   assignedSlot   ParkingSlot?  @relation("VehicleAssignedSlot", fields: [assignedSlotId], references: [id])
 
-  payments       Payment[]
-  entries        Entry[]
+  carEntries   CarEntry[]
 
   @@map("vehicles")
 }
@@ -95,6 +97,8 @@ model Parking {
   updatedAt   DateTime      @updatedAt @map("updated_at")
 
   slots       ParkingSlot[]
+  carExits    CarExit[] 
+  tickets     Ticket[] 
 
   @@map("parking")
 }
@@ -109,40 +113,64 @@ model ParkingSlot {
 
   parking      Parking     @relation(fields: [parkingId], references: [id])
   assignedTo   Vehicle[]    @relation("VehicleAssignedSlot")
-  payments     Payment[]
-  entries      Entry[]
+  carEntries   CarEntry[]
 
   @@map("parkingSlot")
 }
 
-model Payment {
-  id            String       @id @default(uuid())
-  userId        String       @map("user_id")
-  vehicleId     String       @map("vehicle_id")
-  slotId        String       @map("slot_id")
-  checkInTime   DateTime     @map("check_in_time")
-  checkOutTime  DateTime     @map("check_out_time")
-  durationHours Int          @map("duration_hours")
-  amountPaid    Float        @map("amount_paid")
-  createdAt     DateTime     @default(now()) @map("created_at")
+model CarEntry {
+  id            Int       @id @default(autoincrement())
+  plateNumber   String
+  entryDateTime DateTime  @default(now())
+  exitDateTime  DateTime?
+  chargedAmount Int       @default(0)
+  parkingCode   String
+  userId        String
+  parkingSlotId       String
+  user          User      @relation(fields: [userId], references: [id])
+  parkingSlot         ParkingSlot @relation(fields: [parkingSlotId], references: [id])
+  vehicleId String
+vehicle   Vehicle  @relation(fields: [vehicleId], references: [id])
 
-  user          User         @relation(fields: [userId], references: [id])
-  vehicle       Vehicle      @relation(fields: [vehicleId], references: [id])
-  slot          ParkingSlot  @relation(fields: [slotId], references: [id])
-
-  @@map("payments")
+  tickets       Ticket[]
+  bills         Bill[]
+  @@map("carentries")
 }
 
-model Entry {
-  id            String       @id @default(uuid())
-  vehicleId     String       @map("vehicle_id")
-  slotId        String       @map("slot_id")
-  entryTime     DateTime     @default(now()) @map("entry_time")
-  exitTime      DateTime?    @map("exit_time")
-  chargedAmount Float        @default(0) @map("charged_amount")
+model CarExit {
+  id            Int      @id @default(autoincrement())
+  plateNumber   String
+  entryDateTime DateTime @default(now())
+  exitDateTime  DateTime
+  chargedAmount Int      @default(0)
+  parkingCode   String
+  userId        String
+  user          User     @relation(fields: [userId], references: [id])
+  parking       Parking  @relation(fields: [parkingCode], references: [code])
+  @@map("carexits")
+}
 
-  vehicle       Vehicle      @relation(fields: [vehicleId], references: [id])
-  slot          ParkingSlot  @relation(fields: [slotId], references: [id])
+model Ticket {
+  id         Int       @id @default(autoincrement())
+  userId     String
+  parkingId  String
+  amount     Int
+  createdAt  DateTime  @default(now())
+  user       User      @relation(fields: [userId], references: [id])
+  parking    Parking   @relation(fields: [parkingId], references: [id])
+  carEntryId Int?
+  carEntry   CarEntry? @relation(fields: [carEntryId], references: [id])
+  @@map("tickets")
+}
 
-  @@map("entry")
+model Bill {
+  id          Int       @id @default(autoincrement())
+  userId      String
+  parkingCode String
+  amount      Int
+  createdAt   DateTime  @default(now())
+  user        User      @relation(fields: [userId], references: [id])
+  carEntryId  Int?
+  carEntry    CarEntry? @relation(fields: [carEntryId], references: [id])
+  @@map("bills")
 }

@@ -1,18 +1,18 @@
-import { Router } from "express";
-import * as entryController from "../controllers/entry.controller";
-import { checkLoggedIn, checkAdmin } from "../middlewares/auth.middleware";
-import { validationMiddleware } from "../middlewares/validator.middleware";
-import { CreateEntryDTO } from "../dtos/entry.dto";
+import { Router } from 'express';
+import {
+  createCarEntry,
+  getAllCarEntries,
+  getCarEntryById,
+  updateCarExit,
+  deleteCarEntry,
+} from '../controllers/entry.controller';
 
-const entryRouter = Router();
+const router = Router();
 
-// Create a new parking entry
-entryRouter.post(
-  "/create",
-  checkLoggedIn, // User must be logged in
-  validationMiddleware(CreateEntryDTO), // Validate input data
-  entryController.createEntry
-);
+router.post('/entries', createCarEntry);
+router.get('/entries', getAllCarEntries);
+router.get('/entries/:id', getCarEntryById);
+router.put('/entries/:id/exit', updateCarExit);
+router.delete('/entries/:id', deleteCarEntry);
 
-
-export default entryRouter;
+export default router;

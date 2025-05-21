@@ -8,15 +8,15 @@ export const startParkingSlotAvailabilityJob = () => {
     const twoHoursAgo = new Date(Date.now() - 2 * 60 * 60 * 1000); // 2 hours ago
 
     try {
-      const expiredEntries = await prisma.entry.findMany({
+      const expiredEntries = await prisma.carEntry.findMany({
         where: {
-          exitTime: null,
-          entryTime: {
+          exitDateTime: null,
+          entryDateTime: {
             lte: twoHoursAgo,
           },
         },
         include: {
-          slot: {
+          parkingSlot: {
             include: {
               parking: true,
             },
@@ -26,29 +26,29 @@ export const startParkingSlotAvailabilityJob = () => {
 
       for (const entry of expiredEntries) {
         const now = new Date();
-        const entryTime = entry.entryTime;
+        const entryTime = entry.entryDateTime;
         const durationMs = now.getTime() - entryTime.getTime();
         const durationHours = Math.ceil(durationMs / (1000 * 60 * 60)); // Round up
 
-        const feePerHour = entry.slot.parking?.feePerHour?? 0;
+        const feePerHour = entry.parkingSlot.parking?.feePerHour ?? 0;
         const totalFee = durationHours * feePerHour;
 
-        await prisma.entry.update({
+        await prisma.carEntry.update({
           where: { id: entry.id },
           data: {
-            exitTime: now,
-            chargedAmount: totalFee,
+            exitDateTime: now,
+            chargedAmount: Math.floor(totalFee), // Ensure it's an integer
           },
         });
 
         await prisma.parkingSlot.update({
-          where: { id: entry.slotId },
+          where: { id: entry.parkingSlotId },
           data: {
             isAvailable: true,
           },
         });
 
-        console.log(`Auto-checked out vehicle at slot ${entry.slotId}. Charged: ${totalFee} RWF`);
+        console.log(`Auto-checked out vehicle at slot ${entry.parkingSlotId}. Charged: ${totalFee} RWF`);
       }
     } catch (error) {
       console.error("Auto-checkout job failed:", error);
