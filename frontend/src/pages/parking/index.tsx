@@ -2,17 +2,6 @@
 // import axios from "axios";
 // import { toast } from "sonner";
 // import { Parking } from "../../types/parking";
-
-// // Define Parking type locally since @prisma/client is backend-only
-// // export type Parking = {
-// //   id: string;
-// //   name: string;
-// //   code: string;
-// //   location: string;
-// //   feePerHour: number;
-// //   slots?: { id: string }[];
-// // };
-
 // import DataTable from "../../components/tables";
 // import { parkingColumns } from "../../components/tables/columns";
 // import API_ENDPOINTS from "../../constants/api";

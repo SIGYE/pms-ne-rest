@@ -129,15 +129,6 @@
           "Auth"
         ],
         "description": "",
-        "parameters": [
-          {
-            "name": "authorization",
-            "in": "header",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
         "responses": {
           "default": {
             "description": ""
@@ -572,25 +563,151 @@
         }
       }
     },
-    "/vehicles/": {
-      "post": {
+  "/vehicles/create": {
+  "post": {
+    "tags": [
+      "Vehicles"
+    ],
+    "description": "Create a new vehicle entry",
+    "parameters": [
+      {
+        "name": "authorization",
+        "in": "header",
+        "schema": {
+          "type": "string"
+        },
+        "required": true
+      }
+    ],
+    "requestBody": {
+      "required": true,
+      "content": {
+        "application/json": {
+          "schema": {
+            "type": "object",
+            "properties": {
+              "plateNumber": {
+                "type": "string",
+                "example": "RAB 123A"
+              },
+              "color": {
+                "type": "string",
+                "example": "Blue"
+              }
+            },
+            "required": ["plateNumber", "color"]
+          }
+        }
+      }
+    },
+    "responses": {
+      "201": {
+        "description": "Created"
+      },
+      "400": {
+        "description": "Bad Request"
+      },
+      "500": {
+        "description": "Internal Server Error"
+      }
+    },
+    "security": [
+      {
+        "bearerAuth": []
+      }
+    ]
+  }
+}
+,
+    "/vehicles/getMyVehicles": {
+      "get": {
         "tags": [
           "Vehicles"
         ],
-        "description": "Create a new vehicle",
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/CreateVehicleDTO"
-              }
+        "description": "",
+        "parameters": [
+          {
+            "name": "authorization",
+            "in": "header",
+            "schema": {
+              "type": "string"
             }
           }
-        },
+        ],
         "responses": {
-          "201": {
-            "description": "Created"
+          "200": {
+            "description": "OK"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/vehicles/{id}": {
+      "get": {
+        "tags": [
+          "Vehicles"
+        ],
+        "description": "",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "404": {
+            "description": "Not Found"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/vehicles/update": {
+      "put": {
+        "tags": [
+          "Vehicles"
+        ],
+        "description": "",
+        "parameters": [
+          {
+            "name": "authorization",
+            "in": "header",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
           },
           "400": {
             "description": "Bad Request"
@@ -606,161 +723,24 @@
         ]
       }
     },
-    
-        "/vehicles/getMyVehicles": {
-          "get": {
-            "tags": [
-              "Vehicles"
-            ],
-            "description": "",
-            "parameters": [
-             
-            ],
-            "responses": {
-              "200": {
-                "description": "OK"
-              },
-              "500": {
-                "description": "Internal Server Error"
-              }
-            },
-            "security": [
-              {
-                "bearerAuth": []
-              }
-            ]
-          }
-        },
-        "/vehicles/{id}": {
-          "get": {
-            "tags": [
-              "Vehicles"
-            ],
-            "description": "",
-            "parameters": [
-              {
-                "name": "id",
-                "in": "path",
-                "required": true,
-                "schema": {
-                  "type": "string"
-                }
-              }
-            ],
-            "responses": {
-              "200": {
-                "description": "OK"
-              },
-              "404": {
-                "description": "Not Found"
-              },
-              "500": {
-                "description": "Internal Server Error"
-              }
-            },
-            "security": [
-              {
-                "bearerAuth": []
-              }
-            ]
-          },
-          "put": {
-            "tags": [
-              "Vehicles"
-            ],
-            "description": "Update vehicle by ID",
-            "parameters": [
-              {
-                "name": "id",
-                "in": "path",
-                "required": true,
-                "schema": {
-                  "type": "string"
-                }
-              }
-            ],
-            "requestBody": {
-              "required": true,
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "$ref": "#/components/schemas/UpdateVehicleDTO"
-                  }
-                }
-              }
-            },
-            "responses": {
-              "200": {
-                "description": "OK"
-              },
-              "400": {
-                "description": "Bad Request"
-              },
-              "500": {
-                "description": "Internal Server Error"
-              }
-            },
-            "security": [
-              {
-                "bearerAuth": []
-              }
-            ]
-          },
-          "delete": {
-            "tags": [
-              "Vehicles"
-            ],
-            "description": "",
-            "parameters": [
-              {
-                "name": "id",
-                "in": "path",
-                "required": true,
-                "schema": {
-                  "type": "string"
-                }
-              }
-            ],
-            "responses": {
-              "204": {
-                "description": "No Content"
-              },
-              "500": {
-                "description": "Internal Server Error"
-              }
-            },
-            "security": [
-              {
-                "bearerAuth": []
-              }
-            ]
-          }
-        },
-       "/parkingRequests/": {
-      "post": {
+    "/vehicles/delete": {
+      "delete": {
         "tags": [
-          "Parking Requests"
+          "Vehicles"
         ],
-        "description": "Create a new parking request",
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/CreateParkingRequestDTO"
-              }
+        "description": "",
+        "parameters": [
+          {
+            "name": "authorization",
+            "in": "header",
+            "schema": {
+              "type": "string"
             }
           }
-        },
+        ],
         "responses": {
-          "201": {
-            "description": "Created"
-          },
-          "400": {
-            "description": "Bad Request"
-          },
-          "403": {
-            "description": "Forbidden"
+          "204": {
+            "description": "No Content"
           },
           "500": {
             "description": "Internal Server Error"
@@ -772,130 +752,217 @@
           }
         ]
       }
-    }
-    ,
-        "/parkingRequests/myRequests": {
-          "get": {
-            "tags": [
-              "Parking Requests"
-            ],
-            "description": "",
-            "parameters": [
-             
-            ],
-            "responses": {
-              "200": {
-                "description": "OK"
+    },
+"/parking/create": {
+  "post": {
+    "tags": [
+      "Parking"
+    ],
+    "description": "Create a new parking location",
+    "parameters": [
+      {
+        "name": "authorization",
+        "in": "header",
+        "schema": {
+          "type": "string"
+        },
+        "required": true
+      }
+    ],
+    "requestBody": {
+      "required": true,
+      "content": {
+        "application/json": {
+          "schema": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string",
+                "example": "Icyeza"
               },
-              "500": {
-                "description": "Internal Server Error"
+              "location": {
+                "type": "string",
+                "example": "Masaka"
+              },
+              "code": {
+                "type": "string",
+                "example": "A0"
+              },
+              "feePerHour": {
+                "type": "number",
+                "example": 100
               }
             },
-            "security": [
-              {
-                "bearerAuth": []
-              }
-            ]
+            "required": ["name", "location", "code", "feePerHour"]
+          }
+        }
+      }
+    },
+    "responses": {
+      "201": {
+        "description": "Created"
+      },
+      "400": {
+        "description": "Bad Request"
+      },
+      "500": {
+        "description": "Internal Server Error"
+      }
+    },
+    "security": [
+      {
+        "bearerAuth": []
+      }
+    ]
+  }
+},
+    "/parking/update": {
+      "put": {
+        "tags": [
+          "Parking"
+        ],
+        "description": "",
+        "parameters": [
+          {
+            "name": "authorization",
+            "in": "header",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "404": {
+            "description": "Not Found"
+          },
+          "500": {
+            "description": "Internal Server Error"
           }
         },
-        "/parkingRequests/allRequests": {
-          "get": {
-            "tags": [
-              "Parking Requests"
-            ],
-            "description": "",
-            "parameters": [
-             
-            ],
-            "responses": {
-              "200": {
-                "description": "OK"
-              },
-              "500": {
-                "description": "Internal Server Error"
-              }
-            },
-            "security": [
-              {
-                "bearerAuth": []
-              }
-            ]
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/parking/delete": {
+      "delete": {
+        "tags": [
+          "Parking"
+        ],
+        "description": "",
+        "parameters": [
+          {
+            "name": "authorization",
+            "in": "header",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "404": {
+            "description": "Not Found"
+          },
+          "500": {
+            "description": "Internal Server Error"
           }
         },
-        "/parkingRequests/approve/{id}": {
-          "put": {
-            "tags": [
-              "Parking Requests"
-            ],
-            "description": "",
-            "parameters": [
-              {
-                "name": "id",
-                "in": "path",
-                "required": true,
-                "schema": {
-                  "type": "string"
-                }
-              }
-            ],
-            "responses": {
-              "200": {
-                "description": "OK"
-              },
-              "400": {
-                "description": "Bad Request"
-              },
-              "404": {
-                "description": "Not Found"
-              },
-              "500": {
-                "description": "Internal Server Error"
-              }
-            },
-            "security": [
-              {
-                "bearerAuth": []
-              }
-            ]
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/parking/": {
+      "get": {
+        "tags": [
+          "Parking"
+        ],
+        "description": "",
+        "parameters": [
+          {
+            "name": "authorization",
+            "in": "header",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "search",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "500": {
+            "description": "Internal Server Error"
           }
         },
-        "/parkingRequests/reject/{id}": {
-          "put": {
-            "tags": [
-              "Parking Requests"
-            ],
-            "description": "",
-            "parameters": [
-              {
-                "name": "id",
-                "in": "path",
-                "required": true,
-                "schema": {
-                  "type": "string"
-                }
-              }
-            ],
-            "responses": {
-              "200": {
-                "description": "OK"
-              },
-              "400": {
-                "description": "Bad Request"
-              },
-              "404": {
-                "description": "Not Found"
-              },
-              "500": {
-                "description": "Internal Server Error"
-              }
-            },
-            "security": [
-              {
-                "bearerAuth": []
-              }
-            ]
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/parking/{id}": {
+      "get": {
+        "tags": [
+          "Parking"
+        ],
+        "description": "",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "404": {
+            "description": "Not Found"
+          },
+          "500": {
+            "description": "Internal Server Error"
           }
         },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
     "/parkingSlots/": {
       "get": {
         "tags": [
@@ -912,39 +979,6 @@
             "bearerAuth": []
           }
         ]
-      },
-      "post": {
-        "tags": [
-          "Parking Slots"
-        ],
-        "description": "",
-        "responses": {
-          "default": {
-            "description": ""
-          }
-        },
-        "security": [
-          {
-            "bearerAuth": []
-          }
-        ],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "slotNumber": {
-                    "example": "any"
-                  },
-                  "isAvailable": {
-                    "example": "any"
-                  }
-                }
-              }
-            }
-          }
-        }
       }
     },
     "/parkingSlots/available": {
@@ -991,22 +1025,52 @@
             "bearerAuth": []
           }
         ]
-      },
+      }
+    },
+    "/parkingSlots/create": {
+      "post": {
+        "tags": [
+          "Parking Slots"
+        ],
+        "description": "",
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "slotNumber": {
+                    "example": "any"
+                  },
+                  "isAvailable": {
+                    "example": "any"
+                  },
+                  "parkingId": {
+                    "example": "any"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/parkingSlots/update": {
       "put": {
         "tags": [
           "Parking Slots"
         ],
         "description": "",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
         "responses": {
           "default": {
             "description": ""
@@ -1034,10 +1098,99 @@
             }
           }
         }
-      },
+      }
+    },
+    "/parkingSlots/delete": {
       "delete": {
         "tags": [
           "Parking Slots"
+        ],
+        "description": "",
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/entry/entries": {
+      "post": {
+        "tags": [
+          "Entries"
+        ],
+        "description": "",
+        "responses": {
+          "201": {
+            "description": "Created"
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "plateNumber": {
+                    "example": "any"
+                  },
+                  "parkingCode": {
+                    "example": "any"
+                  },
+                  "userId": {
+                    "example": "any"
+                  },
+                  "parkingSlotId": {
+                    "example": "any"
+                  },
+                  "vehicleId": {
+                    "example": "any"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "Entries"
+        ],
+        "description": "",
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/entry/entries/{id}": {
+      "get": {
+        "tags": [
+          "Entries"
         ],
         "description": "",
         "parameters": [
@@ -1051,8 +1204,14 @@
           }
         ],
         "responses": {
-          "default": {
-            "description": ""
+          "200": {
+            "description": "OK"
+          },
+          "404": {
+            "description": "Not Found"
+          },
+          "500": {
+            "description": "Internal Server Error"
           }
         },
         "security": [
@@ -1060,6 +1219,93 @@
             "bearerAuth": []
           }
         ]
+      },
+      "delete": {
+        "tags": [
+          "Entries"
+        ],
+        "description": "",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/entry/entries/{id}/exit": {
+      "put": {
+        "tags": [
+          "Entries"
+        ],
+        "description": "",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "exitDateTime": {
+                    "example": "any"
+                  },
+                  "chargedAmount": {
+                    "example": "any"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/entry/{entries{where{id}}": {
+      "delete": {
+        "description": "",
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
       }
     }
   },
@@ -1069,80 +1315,6 @@
         "type": "apiKey",
         "name": "Authorization",
         "in": "header"
-      }
-    },
-    "schemas": {
-      "CreateVehicleDTO": {
-        "type": "object",
-        "properties": {
-          "plateNumber": {
-            "type": "string",
-            "minLength": 6,
-            "maxLength": 10,
-            "pattern": "^RA[A-Z] \\d{3}[A-Z]$",
-            "example": "RAB 123A"
-          },
-          "color": {
-            "type": "string",
-            "example": "blue"
-          }
-        },
-        "required": ["plateNumber", "color"]
-      },
-      "UpdateVehicleDTO": {
-        "type": "object",
-        "properties": {
-          "plateNumber": {
-            "type": "string",
-            "minLength": 6,
-            "maxLength": 10,
-            "pattern": "^RA[A-Z] \\d{3}[A-Z]$",
-            "example": "RAB 123A"
-          },
-          "color": {
-            "type": "string",
-            "example": "red"
-          },
-          "status": {
-            "type": "string",
-            "enum": ["PENDING", "APPROVED"],
-            "example": "APPROVED"
-          }
-        }
-      },
-      "CreateParkingRequestDTO": {
-        "type": "object",
-        "properties": {
-          "vehicleId": {
-            "type": "string",
-            "example": "64fae6a7c13f0a001f1b1234"
-          },
-          "checkIn": {
-            "type": "string",
-            "format": "date-time",
-            "example": "2025-05-20T08:00:00.000Z"
-          },
-          "checkOut": {
-            "type": "string",
-            "format": "date-time",
-            "example": "2025-05-20T18:00:00.000Z"
-          }
-        },
-        "required": ["vehicleId", "checkIn", "checkOut"]
-      },
-      "UpdateParkingRequestDTO": {
-        "type": "object",
-        "properties": {
-          "status": {
-            "type": "string",
-            "enum": ["PENDING", "APPROVED", "REJECTED"],
-            "example": "APPROVED"
-          },
-          "parkingSlotId": {
-            "type": "string",
-            "example": "SLOT-A1"
-          }
-        }
       }
     }
   },

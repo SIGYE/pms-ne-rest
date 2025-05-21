@@ -34,7 +34,7 @@ router.use("/vehicles", vehicleRouter
 );
 router.use("/parking", parkingSessionRouter
     /*
-        #swagger.tags = ['Parking Requests']
+        #swagger.tags = ['Parking']
         #swagger.security = [{
                 "bearerAuth": []
         }] 
